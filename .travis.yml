@@ -5,6 +5,7 @@ cache:
   ccache: true
   directories:
   - "$HOME/.ccache"
+  - "$HOME/docker"
   - "$TRAVIS_BUILD_DIR/depends/built"
   - "$TRAVIS_BUILD_DIR/depends/sdk-sources"
   - "$TRAVIS_BUILD_DIR/ci/scratch/.ccache"
@@ -29,15 +30,21 @@ env:
     - CCACHE_TEMPDIR=/tmp/.ccache-temp
     - CCACHE_COMPRESS=1
     - CCACHE_DIR=$HOME/.ccache
+    - HOST_CACHE_DIR=$HOME/docker
     - BASE_OUTDIR=$TRAVIS_BUILD_DIR/releases/$HOST
     - SDK_URL=https://bitcoincore.org/depends-sources/sdks
     - WINEDEBUG=fixme-all
     - DOCKER_PACKAGES="build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache"
+before_cache:
+    # Save builder image
+    - docker save $DOCKER_NAME_TAG | gzip -2 > $HOST_CACHE_DIR/ubuntu-1804.tar.gz
 before_install:
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
     - BEGIN_FOLD () { echo ""; CURRENT_FOLD_NAME=$1; echo "travis_fold:start:${CURRENT_FOLD_NAME}"; }
     - END_FOLD () { RET=$?; echo "travis_fold:end:${CURRENT_FOLD_NAME}"; return $RET; }
 install:
+    # Load cached builder image
+    - if [ -f $HOST_CACHE_DIR/ubuntu-1804.tar.gz ]; then zcat $HOST_CACHE_DIR/ubuntu-1804.tar.gz | docker load || true; fi
     - travis_retry docker pull $DOCKER_NAME_TAG
     - env | grep -E '^(CCACHE_|WINEDEBUG|LC_ALL|BOOST_TEST_RANDOM|CONFIG_SHELL)' | tee /tmp/env
     - if [[ $HOST = *-mingw32 ]]; then DOCKER_ADMIN="--cap-add SYS_ADMIN"; fi
