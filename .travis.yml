@@ -11,6 +11,9 @@ cache:
   - "$TRAVIS_BUILD_DIR/releases/$HOST"
 git:
   depth: false  # full clone for git subtree check, this works around issue #12388
+branches:
+  except:
+    - /^untagged-/
 stages:
   - lint
   - test
