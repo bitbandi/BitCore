@@ -104,3 +104,16 @@ jobs:
         - test/lint/check-doc.py
         - test/lint/check-rpc-mappings.py .
         - test/lint/lint-all.sh
+deploy:
+  provider: releases
+  api_key:
+    secure: "JNybQZ8deKHNWPYBCMzHjanG/SJB6EEUlkkJ0a3sY9hxDwxXLgra70Ucf2GwtLmfzpMzDP+1AoaFobUYTNq4Cz1jJECijcbznKsAh7AV6r/v7mR6JiIG88xzzT8KsTJFPzaI9fQ7SiadFXDXPypuYiCYnQgQAlBvATUI7jj2fKSH1w/y4zmWgkdAdthy2cmGwC+FvBtSuIFyt/NV22NGN5GCc6nhLiZazR6UCPy2luHVVnJkeT/6wPOL1j74JwafMaqUMZpt6DEfKqm7NUTgm7hySnxjX0wB6pbYh9L2e4vG7Jz0WeZvWe7OoCAdUd73aoWZTECNpi18FwSGFzX8MAH2gIVuYkhkF+t89WyBu/TNKRbTbNe8N9ZQlL0D9hCjPWG2XVj4+KP29B/eZFyfr0nIW43pFBr1H2ZmwbwJGJkHJ3kaANJckQg8Z/3rQ8/c4GqoJlj3rfGfAik4hcDA5zbEhtSlLvv73wizYZdtYNiA5hgHz1LGa82NLDEIF5Dh0M1LKGu5YDFLIubFik+tjkGg/vQ7dDq2kvUaJR0ia5ZjFdNCBdG6u+eZaZe1rKjiLe8T39lob4uEyDCV0P/iJR1p+kOPdQdgyUUBATLURdIf0E/PuYYdjYy7GdnB2V7+0RyUe4UV3dl7mMwQkBoJDQVkWj+rOxyftZlaWElaL1M="
+  file_glob: true
+  file:
+    - "$OUTDIR/*.tar.gz"
+    - "$OUTDIR/*.tar.gz.sha256.txt"
+    - "$OUTDIR/*.zip"
+    - "$OUTDIR/*.zip.sha256.txt"
+    - "$OUTDIR/*.dmg"
+    - "$OUTDIR/*.dmg.sha256.txt"
+  skip_cleanup: true
