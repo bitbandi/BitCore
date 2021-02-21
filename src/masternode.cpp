@@ -556,11 +556,13 @@ bool CMasternodeBroadcast::Update(CMasternode* pmn, int& nDos, CConnman& connman
 
 bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
 {
+    LogPrintf("CMasternodeBroadcast::CheckOutpoint: start\n");
     // we are a masternode with the same vin (i.e. already activated) and this mnb is ours (matches our Masternode privkey)
     // so nothing to do here for us
     if(fMasterNode && vin.prevout == activeMasternode.outpoint && pubKeyMasternode == activeMasternode.pubKeyMasternode) {
         return false;
     }
+    LogPrintf("CMasternodeBroadcast::CheckOutpoint: CheckSignature\n");
 
     if (!CheckSignature(nDos)) {
         LogPrintf("CMasternodeBroadcast::CheckOutpoint -- CheckSignature() failed, masternode=%s\n", vin.prevout.ToStringShort());
@@ -577,6 +579,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
         }
 
         int nHeight;
+        LogPrintf("CMasternodeBroadcast::CheckOutpoint: CheckCollateral\n");
         CollateralStatus err = CheckCollateral(vin.prevout);
         if (err == COLLATERAL_UTXO_NOT_FOUND) {
             LogPrint(BCLog::MASTERNODE, "CMasternodeBroadcast::CheckOutpoint -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
@@ -588,6 +591,8 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
             return false;
         }
 // BTX ToDo
+        LogPrintf("CMasternodeBroadcast::CheckOutpoint: nMasternodeMinimumConfirmations\n");
+
         if(chainActive.Height() - nHeight + 1 < Params().GetConsensus().nMasternodeMinimumConfirmations) {
             LogPrintf("CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO must have at least %d confirmations, masternode=%s\n",
                     Params().GetConsensus().nMasternodeMinimumConfirmations, vin.prevout.ToStringShort());
@@ -596,10 +601,12 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
             return false;
         }
         // remember the hash of the block where masternode collateral had minimum required confirmations
+        LogPrintf("CMasternodeBroadcast::CheckOutpoint: nCollateralMinConfBlockHash\n");
         nCollateralMinConfBlockHash = chainActive[nHeight + Params().GetConsensus().nMasternodeMinimumConfirmations - 1]->GetBlockHash();
     }
 
     LogPrint(BCLog::MASTERNODE, "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO verified\n");
+        LogPrintf("CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO verified\n");
 
     // make sure the input that was signed in masternode broadcast message is related to the transaction
     // that spawned the Masternode - this is expensive, so it's only done once per Masternode
