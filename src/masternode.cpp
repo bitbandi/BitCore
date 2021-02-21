@@ -578,7 +578,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
             return false;
         }
 
-        int nHeight;
+        int nHeight = 0;
         LogPrintf("CMasternodeBroadcast::CheckOutpoint: CheckCollateral\n");
         CollateralStatus err = CheckCollateral(vin.prevout);
         if (err == COLLATERAL_UTXO_NOT_FOUND) {
